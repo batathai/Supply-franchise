@@ -345,6 +345,27 @@
     cursor: not-allowed;
   }
 
+  .btn-clear {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+
+  .btn-clear:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: rgba(176,0,0,0.04);
+  }
+
   /* Output section */
   .output-section {
     display: none;
@@ -531,7 +552,7 @@
 
   <!-- Store ID -->
   <div class="card">
-    <div class="card-label">ตั้งค่า</div>
+    <div class="card-label">Settings</div>
     <div class="input-row">
       <div class="input-label">Store ID:</div>
       <select id="storeId" class="input-field" style="width:180px;cursor:pointer">
@@ -558,19 +579,19 @@
 
   <!-- File upload -->
   <div class="card">
-    <div class="card-label">เลือกไฟล์ Supply</div>
+    <div class="card-label">Select Supply File</div>
     <div class="drop-zone" id="dropZone">
       <input type="file" id="fileInput" accept="*" multiple>
       <span class="drop-icon">📂</span>
-      <div class="drop-title">วาง หรือ คลิกเพื่อเลือกไฟล์</div>
-      <div class="drop-hint">supply.XX, supply.txt หรือไฟล์ข้อความ CSV — รองรับหลายไฟล์พร้อมกัน</div>
+      <div class="drop-title">Drop files here or click to browse</div>
+      <div class="drop-hint">supply.XX, supply.txt or any CSV text file — supports multiple files</div>
     </div>
     <div id="fileList"></div>
   </div>
 
   <!-- Preview -->
   <div class="card" id="previewCard" style="display:none">
-    <div class="card-label">ตัวอย่างข้อมูล</div>
+    <div class="card-label">Data Preview</div>
     <div class="preview-stats" id="previewStats"></div>
     <div class="preview-table" id="previewTable"></div>
   </div>
@@ -581,14 +602,19 @@
   <!-- Convert button -->
   <button class="btn-convert" id="convertBtn" disabled onclick="runConvert()">
     <span>⚙️</span>
-    <span>แปลงไฟล์</span>
+    <span>Convert File</span>
+  </button>
+
+  <!-- Clear button -->
+  <button class="btn-clear" id="clearBtn" style="display:none" onclick="clearAll()">
+    🗑 Clear All
   </button>
 
   <!-- Output -->
   <div class="output-section" id="outputSection">
     <div class="divider"></div>
     <div class="output-header">
-      <div class="card-label" style="margin:0">ผลลัพธ์</div>
+      <div class="card-label" style="margin:0">Output</div>
     </div>
     <div class="output-files" id="outputFiles"></div>
     <div class="log-box" id="logBox"></div>
@@ -789,7 +815,7 @@ function updatePreview() {
         <td>${price}</td>
       </tr>`;
     }).join('')}
-    ${rows.length > 15 ? `<tr><td colspan="6" style="color:var(--muted);text-align:center">... อีก ${rows.length - 15} รายการ</td></tr>` : ''}
+    ${rows.length > 15 ? `<tr><td colspan="6" style="color:var(--muted);text-align:center">... and ${rows.length - 15} more rows</td></tr>` : ''}
   </table>`;
 
   previewCard.style.display = 'block';
@@ -802,7 +828,7 @@ function runConvert() {
   const orgName = document.getElementById('orgName').value.trim() || 'THAILAND HQ';
   const logs = [];
 
-  if (!loadedFiles.length) { showError('กรุณาเลือกไฟล์ก่อน'); return; }
+  if (!loadedFiles.length) { showError('Please select a file first'); return; }
 
   outputFiles.innerHTML = '';
   logBox.innerHTML = '';
@@ -819,7 +845,7 @@ function runConvert() {
     }
   }
 
-  if (!results.length) { showError('ไม่สามารถแปลงไฟล์ได้'); return; }
+  if (!results.length) { showError('Unable to convert file'); return; }
 
   outputSection.classList.add('visible');
   outputSection.classList.add('animate-in');
@@ -829,22 +855,22 @@ function runConvert() {
       <span style="font-size:24px">📦</span>
       <div class="output-info">
         <div class="output-name">${r.filename}</div>
-        <div class="output-meta">จาก ${r.sourceName} · ${r.poCount} PO · ${r.lineCount} บรรทัด · ${formatBytes(new Blob([r.content]).size)}</div>
+        <div class="output-meta">from ${r.sourceName} · ${r.poCount} POs · ${r.lineCount} lines · ${formatBytes(new Blob([r.content]).size)}</div>
       </div>
-      <button class="btn-download" onclick="downloadFile(${i})">⬇ ดาวน์โหลด</button>
+      <button class="btn-download" onclick="downloadFile(${i})">⬇ Download</button>
     </div>
     <div class="po-summary">
-      <div class="po-summary-title">สรุป Invoice</div>
+      <div class="po-summary-title">Invoice Summary</div>
       <table class="po-table">
-        <tr><th>PO</th><th>คู่</th></tr>
+        <tr><th>PO</th><th>Pairs</th></tr>
         ${r.poSummary.map(p => `<tr><td>${p.po}</td><td>${p.qty.toLocaleString()}</td></tr>`).join('')}
-        <tr class="po-total"><td>รวม</td><td>${r.poSummary.reduce((s,p)=>s+p.qty,0).toLocaleString()}</td></tr>
+        <tr class="po-total"><td>Total</td><td>${r.poSummary.reduce((s,p)=>s+p.qty,0).toLocaleString()}</td></tr>
       </table>
     </div>
   `).join('');
 
   if (results.length > 1) {
-    outputFiles.innerHTML += `<button class="btn-download" style="width:100%;padding:12px;border-radius:10px;font-size:14px;margin-top:4px" onclick="downloadAll()">📦 ดาวน์โหลดทั้งหมด (${results.length} ไฟล์)</button>`;
+    outputFiles.innerHTML += `<button class="btn-download" style="width:100%;padding:12px;border-radius:10px;font-size:14px;margin-top:4px" onclick="downloadAll()">📦 Download All (${results.length} files)</button>`;
   }
 
   logBox.innerHTML = logs.map(l => `
@@ -856,6 +882,7 @@ function runConvert() {
 
   // store results globally for download
   window._convertResults = results;
+  document.getElementById('clearBtn').style.display = 'block';
 }
 
 function downloadFile(i) {
@@ -881,6 +908,22 @@ function triggerDownload(content, filename) {
 
 function showError(msg) { errorBox.textContent = '⚠ ' + msg; errorBox.classList.add('visible'); }
 function hideError() { errorBox.classList.remove('visible'); }
+
+function clearAll() {
+  loadedFiles = [];
+  fileList.innerHTML = '';
+  fileInput.value = '';
+  previewCard.style.display = 'none';
+  previewStats.innerHTML = '';
+  previewTable.innerHTML = '';
+  outputSection.classList.remove('visible');
+  outputFiles.innerHTML = '';
+  logBox.innerHTML = '';
+  convertBtn.disabled = true;
+  document.getElementById('clearBtn').style.display = 'none';
+  hideError();
+  window._convertResults = [];
+}
 
 function formatBytes(b) {
   if (b < 1024) return b + ' B';
