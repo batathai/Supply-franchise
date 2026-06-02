@@ -67,13 +67,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;           
+    font-size: 16px;           
     font-weight: 700;
     color: white;
     letter-spacing: 1px;
     flex-shrink: 0;
     box-shadow: 0 4px 14px rgba(204,0,0,0.3);
-  }
+}
 
   h1 {
     font-size: 28px;
@@ -498,11 +498,22 @@
 
 <script>
 // ============ CORE LOGIC ============
-const SIZE_GRIDS = {
-  'C': {3:'030', 5:'040', 7:'050', 9:'060', 11:'070', 12:'080'},
-  'F': {2:'030', 4:'040', 6:'050', 8:'060', 10:'070', 11:'080'},
-  'D': {2:'060', 4:'070', 5:'080', 6:'090', 8:'100', 10:'110', 12:'120'},
+// Size table CS1-CS13 (idx 0-12) per type, value = size suffix, 0 = skip
+const SIZE_TABLE = {
+  'A': [10,  30,  40,  50,  55,  60,  65,  70,  75,  80,  85,  90,   0],
+  'B': [85,  90,  95, 100, 105, 110, 115, 120, 125, 130,  10,  20,  30],
+  'C': [15,  20,  25,  30,  35,  40,  45,  50,  55,  60,  65,  70,  80],
+  'D': [50,  55,  60,  65,  70,  80,  90,  95, 100, 105, 110, 115, 120],
+  'E': [ 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
+  'F': [15,  20,  30,  35,  40,  45,  50,  55,  60,  65,  70,  80,  90],
 };
+
+function buildGrid(type) {
+  const row = SIZE_TABLE[type] || [];
+  const grid = {};
+  row.forEach((val, idx) => { if (val) grid[idx] = String(val).padStart(3, '0'); });
+  return grid;
+}
 
 function convertSupplyToMnt(text, storeId, orgName) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -526,7 +537,7 @@ function convertSupplyToMnt(text, storeId, orgName) {
     const dateIso = `${y}-${m}-${d}`;
     const ym = `${y}${m}`;
 
-    const grid = SIZE_GRIDS[itemType] || {};
+    const grid = buildGrid(itemType);
     const sizes = [];
     for (const [idxStr, sz] of Object.entries(grid).sort((a,b) => +a[0]-+b[0])) {
       const idx = +idxStr;
@@ -652,7 +663,7 @@ function updatePreview() {
   previewTable.innerHTML = `<table>
     <tr><th>Date</th><th>PO</th><th>Style</th><th>Qty</th><th>Type</th><th>Price (Cost)</th></tr>
     ${sample.map(c => {
-      const typeClass = c[19] === 'C' ? 'badge-c' : c[19] === 'F' ? 'badge-f' : 'badge-d';
+      const typeClass = c[19] === 'C' ? 'badge-c' : c[19] === 'F' ? 'badge-f' : c[19] === 'D' ? 'badge-d' : 'badge-c';
       const price = Math.round(parseFloat(c[21]) * 1.07);
       return `<tr>
         <td>${c[0]}</td>
