@@ -55,25 +55,41 @@
   .header {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     margin-bottom: 40px;
   }
 
   .header-icon {
-    width: 52px;
+    width: 72px;
     height: 52px;
-    background: var(--accent);  
-    border-radius: 12px;
+    background: var(--accent);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;           
-    font-weight: 700;
-    color: white;
-    letter-spacing: 1px;
     flex-shrink: 0;
-    box-shadow: 0 4px 14px rgba(204,0,0,0.3);
-}
+    box-shadow: 0 4px 14px rgba(204,0,0,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+  }
+
+  .bata-logo {
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 2px;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
 
   h1 {
     font-size: 28px;
@@ -438,7 +454,7 @@
 <div class="container">
 
   <div class="header">
-    <div class="header-icon">Bata</div>
+    <div class="header-icon"><span class="bata-logo">Bata</span></div>
     <div>
       <h1>Supply → MNT Converter</h1>
       <div class="subtitle">Bata Franchise</div>
@@ -503,8 +519,8 @@ const SIZE_TABLE = {
   'A': [10,  30,  40,  50,  55,  60,  65,  70,  75,  80,  85,  90,   0],
   'B': [85,  90,  95, 100, 105, 110, 115, 120, 125, 130,  10,  20,  30],
   'C': [15,  20,  25,  30,  35,  40,  45,  50,  55,  60,  65,  70,  80],
-  'D': [50,  55,  60,  65,  70,  80,  90,  95, 100, 105, 110, 115, 120],
-  'E': [ 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],
+  'D': [ 0,   0,  60,  65,  70,  80,  90,  95, 100, 105, 110, 115, 120],  // idx0,1 skipped
+  'E': [ 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],  // ACC: handled separately
   'F': [15,  20,  30,  35,  40,  45,  50,  55,  60,  65,  70,  80,  90],
 };
 
@@ -526,7 +542,9 @@ function convertSupplyToMnt(text, storeId, orgName) {
     const style = cols[2];
     if (style === '9999999') continue; // summary row
 
-    const dateStr = cols[0]; // DD/MM/YYYY
+    const totalQty = +cols[3];
+    if (totalQty === 0) continue; // skip zero qty styles
+    const dateStr = cols[0];
     const po = cols[1];
     const qtyCols = cols.slice(4, 17).map(Number);
     const itemType = cols[19];
@@ -539,10 +557,15 @@ function convertSupplyToMnt(text, storeId, orgName) {
 
     const grid = buildGrid(itemType);
     const sizes = [];
-    for (const [idxStr, sz] of Object.entries(grid).sort((a,b) => +a[0]-+b[0])) {
-      const idx = +idxStr;
-      const qty = idx < qtyCols.length ? qtyCols[idx] : 0;
-      if (qty > 0) sizes.push([sz, qty]);
+
+    if (itemType === 'E') {
+      // ACC: 1 line per style, size = .000, qty = total
+      if (totalQty > 0) sizes.push(['000', totalQty]);
+    } else {
+      Object.entries(grid).sort((a,b) => +a[0]-+b[0]).forEach(([idxStr, sz]) => {
+        const qty = qtyCols[+idxStr] ?? 0;
+        if (qty > 0) sizes.push([sz, qty]);
+      });
     }
 
     if (!pos.has(po)) pos.set(po, { dateIso, ym, items: [] });
