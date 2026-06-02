@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bata Franchise · Invoice Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#CC0000;--red-dark:#A80000;
+  --gray-50:#FAFAFA;--gray-100:#F4F4F5;--gray-200:#E4E4E7;
+  --gray-400:#A1A1AA;--gray-600:#52525B;--gray-900:#18181B;
+  --green:#16A34A;--amber:#D97706;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--gray-50);color:var(--gray-900);min-height:100vh}
+.topbar{background:var(--red);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:56px;box-shadow:0 2px 8px rgba(204,0,0,0.3)}
+.topbar-logo{font-size:20px;font-weight:700;letter-spacing:3px;display:flex;align-items:center;gap:12px}
+.topbar-logo span{font-size:11px;font-weight:400;opacity:.8;border-left:1px solid rgba(255,255,255,0.3);padding-left:12px;letter-spacing:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.mode-badge{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600}
+.btn-topbar{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-topbar:hover{background:rgba(255,255,255,0.25)}
+.main{max-width:960px;margin:0 auto;padding:40px 24px}
+.center-wrap{min-height:calc(100vh - 56px);display:flex;align-items:center;justify-content:center;padding:24px}
+.card{background:white;border:1px solid var(--gray-200);border-radius:12px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.card-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:16px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:480px}
+.mode-card{background:white;border:2px solid var(--gray-200);border-radius:14px;padding:28px 20px;cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif;width:100%}
+.mode-card:hover{border-color:var(--red);box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.login-card{background:white;border:1px solid var(--gray-200);border-radius:16px;padding:48px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
+.form-label{display:block;font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--gray-600);margin-bottom:6px;text-transform:uppercase}
+.form-input{width:100%;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:'DM Mono',monospace;outline:none;transition:border-color .2s;margin-bottom:16px;background:var(--gray-50)}
+.form-input:focus{border-color:var(--red);background:white;box-shadow:0 0 0 3px rgba(204,0,0,0.08)}
+.form-select{width:100%;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:'DM Mono',monospace;outline:none;background:var(--gray-50);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.form-select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(204,0,0,0.08)}
+.btn-primary{width:100%;padding:12px;background:var(--red);color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s}
+.btn-primary:hover{background:var(--red-dark)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-sm{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-red{background:var(--red);color:white}.btn-red:hover{background:var(--red-dark)}
+.btn-outline{background:transparent;border:1.5px solid var(--gray-200);color:var(--gray-600)}.btn-outline:hover{border-color:var(--red);color:var(--red)}
+.btn-danger{background:transparent;border:1.5px solid rgba(204,0,0,0.3);color:var(--red)}.btn-danger:hover{background:rgba(204,0,0,0.06)}
+.link-btn{color:var(--red);font-weight:600;cursor:pointer;background:none;border:none;font-size:13px;font-family:'DM Sans',sans-serif}
+.drop-zone{border:2px dashed var(--gray-200);border-radius:10px;padding:32px;text-align:center;cursor:pointer;position:relative;transition:all .2s}
+.drop-zone:hover,.drop-zone.over{border-color:var(--red);background:rgba(204,0,0,0.03)}
+.drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-chip{display:flex;align-items:center;gap:10px;background:rgba(204,0,0,0.06);border:1px solid rgba(204,0,0,0.15);border-radius:8px;padding:10px 14px;margin-top:8px}
+.file-chip-name{font-family:'DM Mono',monospace;font-size:13px;color:var(--red);flex:1}
+.file-chip-size{font-size:11px;color:var(--gray-400)}
+.file-chip-remove{background:none;border:none;color:var(--gray-400);cursor:pointer;font-size:16px;padding:0 4px}.file-chip-remove:hover{color:var(--red)}
+.tabs{display:flex;gap:4px;background:var(--gray-100);border-radius:10px;padding:4px;margin-bottom:24px}
+.tab-btn{flex:1;padding:8px;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;background:transparent;color:var(--gray-400)}
+.tab-btn.active{background:white;color:var(--gray-900);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.inv-table{width:100%;border-collapse:collapse;font-size:13px}
+.inv-table th{text-align:left;padding:8px 12px;background:rgba(204,0,0,0.05);color:var(--red);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid rgba(204,0,0,0.1)}
+.inv-table td{padding:10px 12px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+.inv-table tr:last-child td{border-bottom:none}
+.inv-table tbody tr:hover td{background:var(--gray-50)}
+.num{text-align:right;font-weight:600}th.num{text-align:right}
+.inv-total td{font-weight:700;color:var(--red);background:rgba(204,0,0,0.04)!important;border-top:2px solid rgba(204,0,0,0.1);font-size:14px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-ready{background:rgba(22,163,74,0.1);color:var(--green)}
+.badge-downloaded{background:rgba(161,161,170,0.15);color:var(--gray-400)}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.alert-err{background:rgba(204,0,0,0.07);color:var(--red);border:1px solid rgba(204,0,0,0.2)}
+.alert-ok{background:rgba(22,163,74,0.08);color:var(--green);border:1px solid rgba(22,163,74,0.2)}
+.empty{text-align:center;padding:48px 24px;color:var(--gray-400)}
+.empty-icon{font-size:40px;margin-bottom:12px}.empty-text{font-size:14px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.section-title{font-size:20px;font-weight:700}.section-sub{font-size:13px;color:var(--gray-400);margin-top:2px}
+hr{border:none;border-top:1px solid var(--gray-200);margin:20px 0}
+.mono{font-family:'DM Mono',monospace}
+/* PO checkbox row */
+.po-row{display:flex;align-items:center;padding:12px 16px;border:1.5px solid var(--gray-200);border-radius:10px;margin-bottom:8px;background:white;cursor:pointer;transition:all .15s;gap:14px}
+.po-row:hover{border-color:var(--red);background:rgba(204,0,0,0.02)}
+.po-row.selected{border-color:var(--red);background:rgba(204,0,0,0.04)}
+.po-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--red);cursor:pointer;flex-shrink:0}
+.po-row-info{flex:1}
+.po-row-id{font-family:'DM Mono',monospace;font-size:15px;font-weight:600}
+.po-row-date{font-size:12px;color:var(--gray-400);margin-top:2px}
+.po-row-qty{font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--red)}
+.po-row-label{font-size:10px;color:var(--gray-400);text-align:right}
+.select-all-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.store-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1px solid var(--gray-200);border-radius:10px;margin-bottom:8px;background:white}
+.store-row:hover{box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.dl-summary{background:rgba(204,0,0,0.04);border:1.5px solid rgba(204,0,0,0.2);border-radius:10px;padding:16px 20px;margin-bottom:16px}
+.dl-summary-total{font-size:22px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace}
+.dl-summary-label{font-size:12px;color:var(--gray-400);margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="topbar" id="topbar">
+  <div class="topbar-logo">BATA <span>Invoice Portal</span></div>
+  <div class="topbar-right" id="topbar-right"></div>
+</div>
+<div id="app"></div>
+
+<script>
+// ═══════════════════════════════════════
+// SIZE TABLE & CONVERTER
+// ═══════════════════════════════════════
+const SIZE_TABLE = {
+  A:[10,20,30,40,50,55,60,65,70,75,80,85,90],
+  B:[85,90,95,100,105,110,115,120,125,130,10,20,30],
+  C:[15,20,25,30,35,40,45,50,55,60,65,70,80],
+  D:[50,55,60,65,70,80,90,95,100,105,110,115,120],
+  E:[0,0,0,0,0,0,0,0,0,0,0,0,0],
+  F:[15,20,30,35,40,45,50,55,60,65,70,80,90],
+};
+
+function buildGrid(t){
+  const g={};
+  (SIZE_TABLE[t]||[]).forEach((v,i)=>{ if(v) g[i]=String(v).padStart(3,'0'); });
+  return g;
+}
+
+// Parse supply text -> Map of po -> {dateIso, ym, items[], qty}
+function parseSupply(text){
+  const pos = new Map();
+  for(const line of text.split(/\r?\n/)){
+    const c = line.trim().split(',');
+    if(c.length<22) continue;
+    const style=c[2]; if(style==='9999999') continue;
+    const totalQty=+c[3]; if(totalQty===0) continue;
+    const po=c[1], itemType=c[19], cost=parseFloat(c[21]), price=Math.round(cost*1.07);
+    const qtyCols=c.slice(4,17).map(Number);
+    const [d,m,y]=c[0].split('/');
+    const dateIso=`${y}-${m}-${d}`, ym=`${y}${m}`;
+    const grid=buildGrid(itemType);
+    const sizes=[];
+    if(itemType==='E'){ sizes.push(['000',totalQty]); }
+    else { Object.entries(grid).sort((a,b)=>+a[0]-+b[0]).forEach(([idx,sz])=>{ const q=qtyCols[+idx]??0; if(q>0) sizes.push([sz,q]); }); }
+    const pairQty = sizes.reduce((s,[,q])=>s+q,0);
+    if(!pos.has(po)) pos.set(po,{dateIso,ym,items:[],qty:0});
+    const pd=pos.get(po);
+    pd.items.push({style,sizes,price});
+    pd.qty+=pairQty;
+  }
+  return pos;
+}
+
+// Convert selected POs to mnt content
+function buildMnt(allPos, selectedPOs, storeId, orgName='THAILAND HQ'){
+  const outLines=[], poSummary=[];
+  for(const po of selectedPOs){
+    const pd = allPos.get(po); if(!pd) continue;
+    const cid=`${po}_${pd.ym}_${storeId}`;
+    outLines.push(`INSERT_ONLY|CARTON|RECEIVING||${storeId}|${cid}|${cid}|OPEN|HOME_OFFICE|`);
+    outLines.push(`INSERT_ONLY|INV_DOC|RECEIVING|ASN|${storeId}|${cid}||OPEN||||${storeId}|${orgName}|HOME_OFFICE||${pd.dateIso}|||||||${storeId}||RETAIL_LOCATION|${storeId}||||||||||||||||||`);
+    let seq=1, poQty=0;
+    for(const item of pd.items) for(const [sz,qty] of item.sizes){
+      outLines.push(`INSERT_ONLY|INV_DOC_LINE_ITEM|RECEIVING||${cid}|${storeId}|${cid}|${seq}|OPEN|${item.style}.${sz}|${qty}|||||ON_HAND||HOME_OFFICE|ITEM|||${item.price}|||||`);
+      seq++; poQty+=qty;
+    }
+    poSummary.push({po, qty:poQty, date:pd.dateIso});
+  }
+  const lc=outLines.length;
+  const now=new Date();
+  const ts=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0'),
+            String(now.getHours()).padStart(2,'0'),String(now.getMinutes()).padStart(2,'0'),String(now.getSeconds()).padStart(2,'0')].join('');
+  const firstDate=poSummary[0]?.date||'';
+  const filename=`${ts}_BTA_TH_${storeId}_ASN.mnt`;
+  const header=`<Header line_count="${lc}" download_id="${filename}" application_date="${firstDate}" target_org_node="STORE:${storeId}" deployment_name="${filename}" download_time="IMMEDIATE" apply_immediately="True" />`;
+  return { content:header+'\r\n'+outLines.join('\r\n')+'\r\n', filename, poSummary, totalQty:poSummary.reduce((s,p)=>s+p.qty,0) };
+}
+
+// ═══════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════
+const HQ_PW = 'Bata@min1234';
+const STORES = Array.from({length:15},(_,i)=>String(30002+i));
+
+async function storageSave(key, val, shared=true){
+  try{ await window.storage.set(key,JSON.stringify(val),shared); return true; }catch(e){ return false; }
+}
+async function storageLoad(key, shared=true){
+  try{ const r=await window.storage.get(key,shared); return r?JSON.parse(r.value):null; }catch(e){ return null; }
+}
+async function storageDelete(key, shared=true){
+  try{ await window.storage.delete(key,shared); return true; }catch(e){ return false; }
+}
+
+function formatBytes(b){ if(b<1024) return b+' B'; if(b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+
+function mkStoreSelect(val,id,style=''){
+  return `<select class="form-select" id="${id}" style="max-width:200px;${style}">${STORES.map(s=>`<option value="${s}"${s===val?' selected':''}>${s}</option>`).join('')}</select>`;
+}
+
+function triggerDownload(content, filename){
+  const blob=new Blob([content],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// ═══════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════
+let hqAuthed=false;
+
+function setTopbar(mode, showLogout, showBack){
+  const tbr=document.getElementById('topbar-right');
+  const badge = mode ? `<span class="mode-badge">${mode==='hq'?'🏢 HQ Admin':'🏪 Store'}</span>` : '';
+  const logout = showLogout ? `<button class="btn-topbar" onclick="hqLogout()">Sign Out</button>` : '';
+  const back = showBack ? `<button class="btn-topbar" onclick="render('home')">← Back</button>` : '';
+  tbr.innerHTML = badge+back+logout;
+}
+
+function render(page, params={}){
+  const app=document.getElementById('app');
+  if(page==='home'){ setTopbar(null,false,false); app.innerHTML=pageHome(); }
+  else if(page==='hq-login'){ setTopbar('hq',false,true); app.innerHTML=pageHqLogin(); }
+  else if(page==='hq-main'){ setTopbar('hq',true,true); pageHqMain(params); }
+  else if(page==='store'){ setTopbar('store',false,true); pageStore(params); }
+}
+
+// ═══════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════
+function pageHome(){
+  return `<div class="center-wrap"><div style="text-align:center;width:100%">
+    <div style="width:72px;height:48px;background:var(--red);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:white;letter-spacing:3px;margin-bottom:20px;box-shadow:0 4px 14px rgba(204,0,0,0.35)">BATA</div>
+    <div style="font-size:24px;font-weight:700;margin-bottom:8px">Invoice Portal</div>
+    <div style="font-size:14px;color:var(--gray-400);margin-bottom:40px">Select your access mode to continue</div>
+    <div class="mode-grid" style="margin:0 auto">
+      <button class="mode-card" onclick="render('hq-login')">
+        <div style="font-size:32px;margin-bottom:12px">🏢</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px">HQ Admin</div>
+        <div style="font-size:12px;color:var(--gray-400);line-height:1.5">Upload supply files &amp; publish invoices</div>
+      </button>
+      <button class="mode-card" onclick="render('store',{storeId:'30016'})">
+        <div style="font-size:32px;margin-bottom:12px">🏪</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Store</div>
+        <div style="font-size:12px;color:var(--gray-400);line-height:1.5">Select POs &amp; download your invoice</div>
+      </button>
+    </div>
+  </div></div>`;
+}
+
+// ═══════════════════════════════════════
+// HQ LOGIN
+// ═══════════════════════════════════════
+function pageHqLogin(){
+  return `<div class="center-wrap"><div class="login-card">
+    <div style="width:56px;height:40px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;letter-spacing:2px;margin-bottom:24px">BATA</div>
+    <div style="font-size:22px;font-weight:700;margin-bottom:6px">HQ Admin Access</div>
+    <div style="font-size:13px;color:var(--gray-400);margin-bottom:32px">Enter your admin password to continue</div>
+    <div id="login-err"></div>
+    <label class="form-label">Password</label>
+    <input class="form-input" type="password" id="hq-pw" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')hqLogin()">
+    <button class="btn-primary" onclick="hqLogin()">Sign In</button>
+    <div style="text-align:center;margin-top:20px"><button class="link-btn" onclick="render('home')">← Back</button></div>
+  </div></div>`;
+}
+function hqLogin(){
+  const pw=document.getElementById('hq-pw').value;
+  if(pw===HQ_PW){ hqAuthed=true; render('hq-main',{tab:'upload'}); }
+  else document.getElementById('login-err').innerHTML=`<div class="alert alert-err">⚠ Incorrect password</div>`;
+}
+function hqLogout(){ hqAuthed=false; render('home'); }
+
+// ═══════════════════════════════════════
+// HQ MAIN
+// ═══════════════════════════════════════
+let hqFiles=[], hqParsed=null; // hqParsed = Map<po, {dateIso,ym,items,qty}>
+
+function pageHqMain(params={}){
+  if(!hqAuthed){ render('hq-login'); return; }
+  const tab=params.tab||'upload';
+  document.getElementById('app').innerHTML=`
+  <div class="main">
+    <div class="section-header">
+      <div><div class="section-title">HQ Admin</div><div class="section-sub">Upload supply files and publish to shared storage</div></div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn ${tab==='upload'?'active':''}" onclick="render('hq-main',{tab:'upload'})">📤 Upload & Publish</button>
+      <button class="tab-btn ${tab==='manage'?'active':''}" onclick="render('hq-main',{tab:'manage'})">📋 Manage</button>
+    </div>
+    <div id="hq-content"></div>
+  </div>`;
+  if(tab==='upload') renderHqUpload();
+  else renderHqManage();
+}
+
+function renderHqUpload(){
+  document.getElementById('hq-content').innerHTML=`
+  <div class="card">
+    <div class="card-label">Supply Files</div>
+    <div class="drop-zone" id="hq-drop"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="hqDrop(event)">
+      <input type="file" multiple onchange="hqFileInput(this.files)">
+      <div style="font-size:28px;margin-bottom:8px">📂</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Drop all supply files here or click to browse</div>
+      <div style="font-size:12px;color:var(--gray-400);font-family:'DM Mono',monospace">supply.20, supply.22, supply.23 ... (all dates at once)</div>
+    </div>
+    <div id="hq-filelist"></div>
+  </div>
+  <div id="hq-preview"></div>
+  <button class="btn-primary" id="hq-pub-btn" onclick="hqPublish()" style="margin-bottom:16px" disabled>☁️ Publish All to Portal</button>
+  <div id="hq-pub-result"></div>`;
+  renderHqFileList();
+}
+
+function renderHqFileList(){
+  const el=document.getElementById('hq-filelist'); if(!el) return;
+  el.innerHTML=hqFiles.map((f,i)=>`
+    <div class="file-chip">
+      <span style="font-size:16px">📄</span>
+      <span class="file-chip-name">${f.name}</span>
+      <span class="file-chip-size">${formatBytes(f.size)}</span>
+      <button class="file-chip-remove" onclick="hqRemoveFile(${i})">✕</button>
+    </div>`).join('');
+  hqParseAll();
+}
+
+async function hqAddFiles(files){
+  for(const f of Array.from(files)){
+    if(hqFiles.find(x=>x.name===f.name)) continue;
+    const text=await f.text();
+    hqFiles.push({name:f.name,text,size:f.size});
+  }
+  renderHqFileList();
+}
+function hqDrop(e){ e.preventDefault(); document.getElementById('hq-drop').classList.remove('over'); hqAddFiles(e.dataTransfer.files); }
+function hqFileInput(files){ hqAddFiles(files); }
+function hqRemoveFile(i){ hqFiles.splice(i,1); renderHqFileList(); }
+
+function hqParseAll(){
+  const preview=document.getElementById('hq-preview');
+  const btn=document.getElementById('hq-pub-btn');
+  if(!preview||!btn) return;
+  if(!hqFiles.length){ hqParsed=null; preview.innerHTML=''; btn.disabled=true; return; }
+  // Merge all files
+  const allText=hqFiles.map(f=>f.text).join('\n');
+  hqParsed=parseSupply(allText);
+  const pos=[...hqParsed.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+  const totalQty=pos.reduce((s,[,pd])=>s+pd.qty,0);
+  preview.innerHTML=`
+  <div class="card">
+    <div class="card-label">Preview — ${pos.length} POs · ${totalQty.toLocaleString()} pairs total</div>
+    <table class="inv-table">
+      <thead><tr><th>PO / Invoice</th><th>Date</th><th>Styles</th><th class="num">Pairs</th></tr></thead>
+      <tbody>
+        ${pos.map(([po,pd])=>`
+        <tr>
+          <td class="mono" style="font-weight:600">${po}</td>
+          <td style="color:var(--gray-600)">${pd.dateIso}</td>
+          <td style="color:var(--gray-600)">${pd.items.length}</td>
+          <td class="num">${pd.qty.toLocaleString()}</td>
+        </tr>`).join('')}
+        <tr class="inv-total"><td colspan="3">Total</td><td class="num">${totalQty.toLocaleString()}</td></tr>
+      </tbody>
+    </table>
+  </div>`;
+  btn.disabled=false;
+}
+
+async function hqPublish(){
+  if(!hqParsed) return;
+  const btn=document.getElementById('hq-pub-btn');
+  btn.disabled=true; btn.textContent='⏳ Publishing...';
+  // Serialize parsed data (without full content — store only parsed PO data)
+  const poData={};
+  for(const [po,pd] of hqParsed){
+    poData[po]={ dateIso:pd.dateIso, ym:pd.ym, items:pd.items, qty:pd.qty };
+  }
+  const ok=await storageSave('hq:supply', { poData, publishedAt:new Date().toISOString() });
+  btn.disabled=false; btn.textContent='☁️ Publish All to Portal';
+  const el=document.getElementById('hq-pub-result');
+  if(ok){
+    el.innerHTML=`<div class="alert alert-ok">✅ Published ${Object.keys(poData).length} POs to portal — stores can now select and download their invoices</div>`;
+    hqFiles=[]; hqParsed=null;
+    renderHqFileList();
+    document.getElementById('hq-preview').innerHTML='';
+  } else {
+    el.innerHTML=`<div class="alert alert-err">⚠ Failed to publish. Please try again.</div>`;
+  }
+}
+
+async function renderHqManage(){
+  document.getElementById('hq-content').innerHTML=`<div class="card"><div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Loading...</div></div></div>`;
+  const data=await storageLoad('hq:supply');
+  if(!data||!data.poData){
+    document.getElementById('hq-content').innerHTML=`
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="card-label" style="margin-bottom:0">Published Supply Data</div>
+        <button class="btn-sm btn-outline" onclick="render('hq-main',{tab:'manage'})">↻ Refresh</button>
+      </div>
+      <div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No supply data published yet</div></div>
+    </div>`; return;
+  }
+  const pos=Object.entries(data.poData).sort((a,b)=>a[0].localeCompare(b[0]));
+  const totalQty=pos.reduce((s,[,pd])=>s+pd.qty,0);
+  document.getElementById('hq-content').innerHTML=`
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="card-label" style="margin-bottom:0">Published: ${pos.length} POs · ${totalQty.toLocaleString()} pairs</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sm btn-outline" onclick="render('hq-main',{tab:'manage'})">↻ Refresh</button>
+        <button class="btn-sm btn-danger" onclick="hqClearAll()">🗑 Clear All</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--gray-400);margin-bottom:16px">Published: ${new Date(data.publishedAt).toLocaleString()}</div>
+    <table class="inv-table">
+      <thead><tr><th>PO / Invoice</th><th>Date</th><th>Styles</th><th class="num">Pairs</th></tr></thead>
+      <tbody>
+        ${pos.map(([po,pd])=>`
+        <tr>
+          <td class="mono" style="font-weight:600">${po}</td>
+          <td style="color:var(--gray-600)">${pd.dateIso}</td>
+          <td style="color:var(--gray-600)">${pd.items.length}</td>
+          <td class="num">${pd.qty.toLocaleString()}</td>
+        </tr>`).join('')}
+        <tr class="inv-total"><td colspan="3">Total</td><td class="num">${totalQty.toLocaleString()}</td></tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+async function hqClearAll(){
+  if(!confirm('Clear all published supply data?')) return;
+  await storageDelete('hq:supply');
+  render('hq-main',{tab:'manage'});
+}
+
+// ═══════════════════════════════════════
+// STORE PAGE
+// ═══════════════════════════════════════
+let storeSelected = new Set();
+let storeAllPos = null;
+
+async function pageStore(params={}){
+  const storeId=params.storeId||'30016';
+  storeSelected=new Set(); storeAllPos=null;
+  document.getElementById('app').innerHTML=`
+  <div class="main">
+    <div class="section-header">
+      <div><div class="section-title">Store Invoice</div><div class="section-sub">Select your store, tick the POs you need, then download</div></div>
+    </div>
+    <div class="card">
+      <div class="card-label">Your Store</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <label style="font-size:13px;font-weight:500;white-space:nowrap">Store ID:</label>
+        ${mkStoreSelect(storeId,'store-sel')}
+      </div>
+    </div>
+    <div id="store-content"><div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Loading available invoices...</div></div></div>
+  </div>`;
+  document.getElementById('store-sel').addEventListener('change',e=>pageStore({storeId:e.target.value}));
+  await renderStoreContent(storeId);
+}
+
+async function renderStoreContent(storeId){
+  const el=document.getElementById('store-content');
+  const data=await storageLoad('hq:supply');
+  if(!data||!data.poData){
+    el.innerHTML=`<div class="card"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No invoices available yet</div><div style="font-size:12px;color:var(--gray-400);margin-top:8px">Please contact HQ to upload supply data</div></div></div>`;
+    return;
+  }
+  // Rebuild Map from stored data
+  storeAllPos=new Map();
+  for(const [po,pd] of Object.entries(data.poData)){
+    storeAllPos.set(po,pd);
+  }
+  const pos=[...storeAllPos.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+  el.innerHTML=`
+  <div class="card">
+    <div class="card-label">Available POs — select which ones to download</div>
+    <div class="select-all-bar">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500">
+        <input type="checkbox" id="chk-all" style="width:18px;height:18px;accent-color:var(--red);cursor:pointer" onchange="toggleAll(this.checked)">
+        Select All
+      </label>
+      <span style="font-size:12px;color:var(--gray-400)" id="sel-count">0 of ${pos.length} selected</span>
+    </div>
+    ${pos.map(([po,pd])=>`
+    <div class="po-row" id="row-${po}" onclick="togglePO('${po}')">
+      <input type="checkbox" id="chk-${po}" onclick="event.stopPropagation();togglePO('${po}')" style="width:18px;height:18px;accent-color:var(--red);cursor:pointer;flex-shrink:0">
+      <div class="po-row-info">
+        <div class="po-row-id">PO ${po}</div>
+        <div class="po-row-date">${pd.dateIso} · ${pd.items.length} styles</div>
+      </div>
+      <div style="text-align:right">
+        <div class="po-row-qty">${pd.qty.toLocaleString()}</div>
+        <div class="po-row-label">pairs</div>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div id="dl-panel"></div>`;
+  updateSelCount();
+}
+
+function togglePO(po){
+  if(storeSelected.has(po)) storeSelected.delete(po);
+  else storeSelected.add(po);
+  const chk=document.getElementById('chk-'+po);
+  const row=document.getElementById('row-'+po);
+  if(chk){ chk.checked=storeSelected.has(po); }
+  if(row){ row.classList.toggle('selected',storeSelected.has(po)); }
+  updateSelCount();
+  updateDlPanel();
+}
+
+function toggleAll(checked){
+  if(!storeAllPos) return;
+  storeSelected=checked ? new Set(storeAllPos.keys()) : new Set();
+  for(const [po] of storeAllPos){
+    const chk=document.getElementById('chk-'+po);
+    const row=document.getElementById('row-'+po);
+    if(chk) chk.checked=checked;
+    if(row) row.classList.toggle('selected',checked);
+  }
+  updateSelCount();
+  updateDlPanel();
+}
+
+function updateSelCount(){
+  const el=document.getElementById('sel-count'); if(!el) return;
+  const total=storeAllPos?storeAllPos.size:0;
+  el.textContent=`${storeSelected.size} of ${total} selected`;
+  const chkAll=document.getElementById('chk-all');
+  if(chkAll) chkAll.checked=storeSelected.size===total&&total>0;
+}
+
+function updateDlPanel(){
+  const el=document.getElementById('dl-panel'); if(!el) return;
+  if(storeSelected.size===0){ el.innerHTML=''; return; }
+  const totalQty=[...storeSelected].reduce((s,po)=>s+(storeAllPos.get(po)?.qty||0),0);
+  const storeId=document.getElementById('store-sel').value;
+  el.innerHTML=`
+  <div class="dl-summary">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div class="dl-summary-label">Selected: ${storeSelected.size} PO${storeSelected.size>1?'s':''}</div>
+        <div class="dl-summary-total">${totalQty.toLocaleString()} <span style="font-size:14px;font-weight:400;color:var(--gray-400)">pairs</span></div>
+      </div>
+      <button class="btn-sm btn-red" style="padding:12px 28px;font-size:14px" onclick="storeDownload()">⬇ Download .mnt</button>
+    </div>
+    <div style="font-size:12px;color:var(--gray-600)">
+      ${[...storeSelected].sort().map(po=>`<span style="font-family:'DM Mono',monospace;margin-right:12px">PO ${po} (${storeAllPos.get(po)?.qty||0})</span>`).join('')}
+    </div>
+  </div>`;
+}
+
+function storeDownload(){
+  if(!storeSelected.size||!storeAllPos) return;
+  const storeId=document.getElementById('store-sel').value;
+  const selectedArr=[...storeSelected].sort();
+  const res=buildMnt(storeAllPos, selectedArr, storeId);
+  triggerDownload(res.content, res.filename);
+  // Show confirmation
+  const panel=document.getElementById('dl-panel');
+  if(panel){
+    const existing=panel.querySelector('.dl-summary');
+    const msg=document.createElement('div');
+    msg.className='alert alert-ok'; msg.style.marginTop='12px';
+    msg.innerHTML=`✅ <strong>${res.filename}</strong> downloaded — double-click <strong>run_dataloader.bat</strong> on Desktop to import`;
+    if(existing) existing.after(msg);
+  }
+}
+render('home');
+</script>
+</body>
+</html>
