@@ -55,7 +55,7 @@
   .header {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     margin-bottom: 40px;
   }
 
@@ -132,7 +132,7 @@
     align-items: center;
   }
 
-  .input-field {
+  .input-field, select.input-field {
     background: var(--surface2);
     border: 1.5px solid var(--border);
     border-radius: 8px;
@@ -143,9 +143,15 @@
     outline: none;
     transition: border-color 0.2s;
     width: 180px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
   }
 
-  .input-field:focus {
+  .input-field:focus, select.input-field:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(204,0,0,0.1);
   }
@@ -448,13 +454,75 @@
     background: var(--border);
     margin: 20px 0;
   }
+
+  /* PO Summary Table */
+  .po-summary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .po-summary-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-family: var(--mono);
+  }
+
+  .po-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+
+  .po-table th {
+    text-align: left;
+    padding: 6px 12px;
+    background: rgba(204,0,0,0.06);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(204,0,0,0.15);
+  }
+
+  .po-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .po-table td:last-child {
+    text-align: right;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .po-table th:last-child { text-align: right; }
+
+  .po-table tr:last-child td { border-bottom: none; }
+  .po-table tr:hover:not(.po-total) td { background: rgba(204,0,0,0.03); }
+
+  .po-total td {
+    font-weight: 700 !important;
+    color: var(--accent) !important;
+    border-top: 2px solid rgba(204,0,0,0.15);
+    background: rgba(204,0,0,0.04);
+    font-size: 15px;
+  }
 </style>
 </head>
 <body>
 <div class="container">
 
   <div class="header">
-    <div class="header-icon"><span class="bata-logo">Bata</span></div>
+    <div class="header-icon"><span class="bata-logo">BATA</span></div>
     <div>
       <h1>Supply → MNT Converter</h1>
       <div class="subtitle">Bata Franchise</div>
@@ -466,7 +534,23 @@
     <div class="card-label">ตั้งค่า</div>
     <div class="input-row">
       <div class="input-label">Store ID:</div>
-      <input type="text" id="storeId" class="input-field" value="30013" placeholder="เช่น 30013" maxlength="10">
+      <select id="storeId" class="input-field" style="width:180px;cursor:pointer">
+        <option value="30002">30002</option>
+        <option value="30003">30003</option>
+        <option value="30004">30004</option>
+        <option value="30005">30005</option>
+        <option value="30006">30006</option>
+        <option value="30007">30007</option>
+        <option value="30008">30008</option>
+        <option value="30009">30009</option>
+        <option value="30010">30010</option>
+        <option value="30011">30011</option>
+        <option value="30012">30012</option>
+        <option value="30013" selected>30013</option>
+        <option value="30014">30014</option>
+        <option value="30015">30015</option>
+        <option value="30016">30016</option>
+      </select>
       <div class="input-label" style="margin-left:20px">Org Name:</div>
       <input type="text" id="orgName" class="input-field" value="THAILAND HQ" placeholder="THAILAND HQ" style="width:200px">
     </div>
@@ -516,10 +600,10 @@
 // ============ CORE LOGIC ============
 // Size table CS1-CS13 (idx 0-12) per type, value = size suffix, 0 = skip
 const SIZE_TABLE = {
-  'A': [10,  30,  40,  50,  55,  60,  65,  70,  75,  80,  85,  90,   0],
+  'A': [10,  20,  30,  40,  50,  55,  60,  65,  70,  75,  80,  85,  90],  // idx12=090
   'B': [85,  90,  95, 100, 105, 110, 115, 120, 125, 130,  10,  20,  30],
   'C': [15,  20,  25,  30,  35,  40,  45,  50,  55,  60,  65,  70,  80],
-  'D': [ 0,   0,  60,  65,  70,  80,  90,  95, 100, 105, 110, 115, 120],  // idx0,1 skipped
+  'D': [50,  55,  60,  65,  70,  80,  90,  95, 100, 105, 110, 115, 120],  // idx0=050, idx1=055
   'E': [ 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0],  // ACC: handled separately
   'F': [15,  20,  30,  35,  40,  45,  50,  55,  60,  65,  70,  80,  90],
 };
@@ -600,7 +684,15 @@ function convertSupplyToMnt(text, storeId, orgName) {
   const header = `<Header line_count="${lineCount}" download_id="${filename}" application_date="${firstDate}" target_org_node="STORE:${storeId}" deployment_name="${filename}" download_time="IMMEDIATE" apply_immediately="True" />`;
 
   const content = header + '\r\n' + outputLines.join('\r\n') + '\r\n';
-  return { content, filename, lineCount, poCount: pos.size, skipped,
+
+  // Build per-PO summary
+  const poSummary = [];
+  for (const [po, poData] of pos) {
+    const poQty = poData.items.reduce((sum, item) => sum + item.sizes.reduce((s, [,q]) => s + q, 0), 0);
+    poSummary.push({ po, qty: poQty });
+  }
+
+  return { content, filename, lineCount, poCount: pos.size, skipped, poSummary,
     stats: { pos: [...pos.keys()], total: outputLines.length } };
 }
 
@@ -740,6 +832,14 @@ function runConvert() {
         <div class="output-meta">จาก ${r.sourceName} · ${r.poCount} PO · ${r.lineCount} บรรทัด · ${formatBytes(new Blob([r.content]).size)}</div>
       </div>
       <button class="btn-download" onclick="downloadFile(${i})">⬇ ดาวน์โหลด</button>
+    </div>
+    <div class="po-summary">
+      <div class="po-summary-title">สรุป Invoice</div>
+      <table class="po-table">
+        <tr><th>PO</th><th>คู่</th></tr>
+        ${r.poSummary.map(p => `<tr><td>${p.po}</td><td>${p.qty.toLocaleString()}</td></tr>`).join('')}
+        <tr class="po-total"><td>รวม</td><td>${r.poSummary.reduce((s,p)=>s+p.qty,0).toLocaleString()}</td></tr>
+      </table>
     </div>
   `).join('');
 
