@@ -259,7 +259,18 @@ function hqLogin(){
   if(pw===HQ_PW){ hqAuthed=true; render('hq-main',{tab:'upload'}); }
   else document.getElementById('login-err').innerHTML=`<div class="alert alert-err">⚠ Incorrect password</div>`;
 }
-function hqLogout(){ hqAuthed=false; render('home'); }
+function hqLogout(){ hqAuthed=false; 
+function filterInvoices(query){
+  const q=query.trim().toLowerCase();
+  if(!storeAllPos) return;
+  for(const [po] of storeAllPos){
+    const row=document.getElementById('row-'+po);
+    if(!row) continue;
+    row.style.display = (!q || po.toLowerCase().includes(q)) ? '' : 'none';
+  }
+}
+
+render('home'); }
 
 // ═══════════════════════════════════════
 // HQ MAIN
@@ -440,7 +451,7 @@ async function pageStore(params={}){
   document.getElementById('app').innerHTML=`
   <div class="main">
     <div class="section-header">
-      <div><div class="section-title">Store Invoice</div><div class="section-sub">Select your store, tick the POs you need, then download</div></div>
+      <div><div class="section-title">Store Invoice</div><div class="section-sub">Select your store, search and tick the invoices you need, then download</div></div>
     </div>
     <div class="card">
       <div class="card-label">Your Store</div>
@@ -470,7 +481,13 @@ async function renderStoreContent(storeId){
   const pos=[...storeAllPos.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
   el.innerHTML=`
   <div class="card">
-    <div class="card-label">Available POs — select which ones to download</div>
+    <div class="card-label">Available Invoices — select which ones to download</div>
+    <div style="margin-bottom:12px">
+      <input type="text" id="inv-search" placeholder="🔍  Search invoice number..." oninput="filterInvoices(this.value)"
+        style="width:100%;padding:9px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:'DM Mono',monospace;outline:none;background:var(--gray-50);transition:border-color .2s"
+        onfocus="this.style.borderColor='var(--red)';this.style.boxShadow='0 0 0 3px rgba(204,0,0,0.08)'"
+        onblur="this.style.borderColor='var(--gray-200)';this.style.boxShadow='none'">
+    </div>
     <div class="select-all-bar">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500">
         <input type="checkbox" id="chk-all" style="width:18px;height:18px;accent-color:var(--red);cursor:pointer" onchange="toggleAll(this.checked)">
@@ -482,7 +499,7 @@ async function renderStoreContent(storeId){
     <div class="po-row" id="row-${po}" onclick="togglePO('${po}')">
       <input type="checkbox" id="chk-${po}" onclick="event.stopPropagation();togglePO('${po}')" style="width:18px;height:18px;accent-color:var(--red);cursor:pointer;flex-shrink:0">
       <div class="po-row-info">
-        <div class="po-row-id">PO ${po}</div>
+        <div class="po-row-id">Invoice ${po}</div>
         <div class="po-row-date">${pd.dateIso} · ${pd.items.length} styles</div>
       </div>
       <div style="text-align:right">
@@ -522,7 +539,7 @@ function toggleAll(checked){
 function updateSelCount(){
   const el=document.getElementById('sel-count'); if(!el) return;
   const total=storeAllPos?storeAllPos.size:0;
-  el.textContent=`${storeSelected.size} of ${total} selected`;
+  el.textContent=`${storeSelected.size} of ${total} invoices`;
   const chkAll=document.getElementById('chk-all');
   if(chkAll) chkAll.checked=storeSelected.size===total&&total>0;
 }
@@ -542,7 +559,7 @@ function updateDlPanel(){
       <button class="btn-sm btn-red" style="padding:12px 28px;font-size:14px" onclick="storeDownload()">⬇ Download .mnt</button>
     </div>
     <div style="font-size:12px;color:var(--gray-600)">
-      ${[...storeSelected].sort().map(po=>`<span style="font-family:'DM Mono',monospace;margin-right:12px">PO ${po} (${storeAllPos.get(po)?.qty||0})</span>`).join('')}
+      ${[...storeSelected].sort().map(po=>`<span style="font-family:'DM Mono',monospace;margin-right:12px">Inv. ${po} (${storeAllPos.get(po)?.qty||0} pairs)</span>`).join('')}
     </div>
   </div>`;
 }
@@ -563,6 +580,17 @@ function storeDownload(){
     if(existing) existing.after(msg);
   }
 }
+
+function filterInvoices(query){
+  const q=query.trim().toLowerCase();
+  if(!storeAllPos) return;
+  for(const [po] of storeAllPos){
+    const row=document.getElementById('row-'+po);
+    if(!row) continue;
+    row.style.display = (!q || po.toLowerCase().includes(q)) ? '' : 'none';
+  }
+}
+
 render('home');
 </script>
 </body>
