@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bata Franchise · Portal</title>
+<title>Bata Franchise · Invoice Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -115,7 +115,7 @@ hr{border:none;border-top:1px solid var(--gray-200);margin:20px 0}
 </head>
 <body>
 <div class="topbar" id="topbar">
-  <div class="topbar-logo">BATA <span>Franchise Portal</span></div>
+  <div class="topbar-logo">BATA <span>Invoice Portal</span></div>
   <div class="topbar-right" id="topbar-right"></div>
 </div>
 <div id="app"></div>
@@ -243,7 +243,7 @@ function render(page,params={}){
 function pageHome(){
   return `<div class="center-wrap"><div style="text-align:center;width:100%">
     <div style="width:72px;height:48px;background:var(--red);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:white;letter-spacing:3px;margin-bottom:20px;box-shadow:0 4px 14px rgba(204,0,0,0.35)">BATA</div>
-    <div style="font-size:24px;font-weight:700;margin-bottom:8px">Bata Franchise Portal</div>
+    <div style="font-size:24px;font-weight:700;margin-bottom:8px">Invoice Portal</div>
     <div style="font-size:14px;color:var(--gray-400);margin-bottom:40px">Bata Franchise</div>
     <div class="mode-grid" style="margin:0 auto">
       <button class="mode-card" onclick="render('hq-login')">
@@ -476,7 +476,10 @@ async function renderHqManage(){
           <td class="num">${r.qty.toLocaleString()}</td>
           <td class="num">${dlCount[r.po]||0>0?`<span class="badge badge-downloaded">✓ ${dlCount[r.po]}</span>`:'—'}</td>
           <td style="font-size:12px;color:var(--gray-400)">${fmtDate(r.published_at)}</td>
-          <td><button class="btn-sm btn-danger" onclick="hqDeleteOne('${r.po}')">Delete</button></td>
+          <td style="display:flex;gap:6px;align-items:center">
+            <button class="btn-sm btn-outline" style="color:var(--amber);border-color:rgba(217,119,6,0.4)" onclick="hqResetDownload('${r.po}')">↺ Reset DL</button>
+            <button class="btn-sm btn-danger" onclick="hqDeleteOne('${r.po}')">Delete</button>
+          </td>
         </tr>`).join('')}
         <tr class="inv-total"><td colspan="3">Total</td><td class="num">${totalQty.toLocaleString()}</td><td colspan="3"></td></tr>
       </tbody>
@@ -484,6 +487,11 @@ async function renderHqManage(){
   </div>`;
 }
 
+async function hqResetDownload(po){
+  if(!confirm(`Reset download record for Invoice ${po}?\nสาขาจะสามารถโหลด Invoice นี้ได้อีกครั้ง`)) return;
+  await sbDelete('downloads',`po=eq.${po}`);
+  render('hq-main',{tab:'manage'});
+}
 async function hqDeleteOne(po){
   if(!confirm(`Delete Invoice ${po}?`)) return;
   await sbDelete('invoices',`po=eq.${po}`);
