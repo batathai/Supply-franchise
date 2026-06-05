@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bata Franchise · Invoice Portal</title>
+<title>Bata Franchise · Services Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -115,7 +115,7 @@ hr{border:none;border-top:1px solid var(--gray-200);margin:20px 0}
 </head>
 <body>
 <div class="topbar" id="topbar">
-  <div class="topbar-logo">BATA <span>Invoice Portal</span></div>
+  <div class="topbar-logo">BATA <span>Services Portal</span></div>
   <div class="topbar-right" id="topbar-right"></div>
 </div>
 <div id="app"></div>
@@ -243,7 +243,7 @@ function render(page,params={}){
 function pageHome(){
   return `<div class="center-wrap"><div style="text-align:center;width:100%">
     <div style="width:72px;height:48px;background:var(--red);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:white;letter-spacing:3px;margin-bottom:20px;box-shadow:0 4px 14px rgba(204,0,0,0.35);cursor:default;user-select:none" id="home-logo" onclick="hqLogoClick()">BATA</div>
-    <div style="font-size:24px;font-weight:700;margin-bottom:8px">Invoice Portal</div>
+    <div style="font-size:24px;font-weight:700;margin-bottom:8px">Services Portal</div>
     <div style="font-size:14px;color:var(--gray-400);margin-bottom:40px">Bata Franchise</div>
     <div class="mode-grid" style="margin:0 auto;grid-template-columns:1fr 1fr">
       <button class="mode-card" onclick="render('store',{storeId:'30016'})">
