@@ -101,15 +101,16 @@ hr{border:none;border-top:1px solid var(--gray-200);margin:20px 0}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* REPAIR iframe */
-.repair-wrap{background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
-.repair-header{padding:16px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:12px}
+.repair-page{display:flex;flex-direction:column;height:calc(100vh - 56px)}
+.repair-wrap{background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04);display:flex;flex-direction:column;flex:1;min-height:0}
+.repair-header{padding:14px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:12px;flex-shrink:0}
 .repair-header .card-label{margin:0}
 .repair-badge{margin-left:auto;background:rgba(204,0,0,0.1);color:var(--red);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid rgba(204,0,0,0.2);font-family:'DM Mono',monospace}
-.repair-iframe-box{position:relative;min-height:680px}
-.repair-iframe-box iframe{width:100%;min-height:680px;border:none;display:block}
-.iframe-loader{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--gray-50);font-size:13px;color:var(--gray-400);font-family:'DM Mono',monospace}
+.repair-iframe-box{position:relative;flex:1;min-height:0}
+.repair-iframe-box iframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:block}
+.iframe-loader{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--gray-50);font-size:13px;color:var(--gray-400);font-family:'DM Mono',monospace;z-index:1}
 .loader-ring{width:36px;height:36px;border:3px solid rgba(204,0,0,0.15);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}
-.repair-footer{padding:10px 24px;border-top:1px solid var(--gray-200);background:var(--gray-50);font-size:12px;color:var(--gray-400);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:8px}
+.repair-footer{padding:8px 24px;border-top:1px solid var(--gray-200);background:var(--gray-50);font-size:12px;color:var(--gray-400);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:8px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -268,11 +269,11 @@ function pageHome(){
 // REPAIR PAGE
 // ═══════════════════════════════════════
 function pageRepair(){
-  return `<div class="main">
-    <div class="section-header">
+  return `<div class="repair-page" style="padding:16px 24px;gap:12px">
+    <div style="display:flex;align-items:center;flex-shrink:0">
       <div>
-        <div class="section-title">🔧 แบบฟอร์มแจ้งซ่อม</div>
-        <div class="section-sub">Repair Request · กรอกข้อมูลเพื่อแจ้งปัญหาสาขาของคุณ</div>
+        <div style="font-size:18px;font-weight:700">🔧 แบบฟอร์มแจ้งซ่อม</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-top:2px">Repair Request · กรอกข้อมูลเพื่อแจ้งปัญหาสาขาของคุณ</div>
       </div>
     </div>
     <div class="repair-wrap">
