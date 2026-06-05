@@ -25,9 +25,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--gray-50);color:var(--gray
 .center-wrap{min-height:calc(100vh - 56px);display:flex;align-items:center;justify-content:center;padding:24px}
 .card{background:white;border:1px solid var(--gray-200);border-radius:12px;padding:24px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
 .card-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:16px}
-.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:480px}
+
+/* HOME MODE GRID — 3 cards */
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:680px}
+@media(max-width:600px){.mode-grid{grid-template-columns:1fr;max-width:320px}}
+
 .mode-card{background:white;border:2px solid var(--gray-200);border-radius:14px;padding:28px 20px;cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif;width:100%}
-.mode-card:hover{border-color:var(--red);box-shadow:0 4px 20px rgba(0,0,0,0.1)}
+.mode-card:hover{border-color:var(--red);box-shadow:0 4px 20px rgba(0,0,0,0.1);transform:translateY(-2px)}
+.mode-card-icon{font-size:32px;margin-bottom:12px}
+.mode-card-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.mode-card-desc{font-size:12px;color:var(--gray-400);line-height:1.5}
+
 .login-card{background:white;border:1px solid var(--gray-200);border-radius:16px;padding:48px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,0.06)}
 .form-label{display:block;font-size:12px;font-weight:600;letter-spacing:.5px;color:var(--gray-600);margin-bottom:6px;text-transform:uppercase}
 .form-input{width:100%;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:'DM Mono',monospace;outline:none;transition:border-color .2s;margin-bottom:16px;background:var(--gray-50)}
@@ -91,6 +99,17 @@ hr{border:none;border-top:1px solid var(--gray-200);margin:20px 0}
 .log-row td{font-size:12px}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* REPAIR iframe */
+.repair-wrap{background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.repair-header{padding:16px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:12px}
+.repair-header .card-label{margin:0}
+.repair-badge{margin-left:auto;background:rgba(204,0,0,0.1);color:var(--red);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid rgba(204,0,0,0.2);font-family:'DM Mono',monospace}
+.repair-iframe-box{position:relative;min-height:680px}
+.repair-iframe-box iframe{width:100%;min-height:680px;border:none;display:block}
+.iframe-loader{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--gray-50);font-size:13px;color:var(--gray-400);font-family:'DM Mono',monospace}
+.loader-ring{width:36px;height:36px;border:3px solid rgba(204,0,0,0.15);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite}
+.repair-footer{padding:10px 24px;border-top:1px solid var(--gray-200);background:var(--gray-50);font-size:12px;color:var(--gray-400);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
@@ -176,25 +195,6 @@ function parseSupply(text){
   return pos;
 }
 
-function buildMnt(pd, storeId, orgName='THAILAND HQ'){
-  const outLines=[];
-  const cid=`${pd.po}_${pd.ym}_${storeId}`;
-  outLines.push(`INSERT_ONLY|CARTON|RECEIVING||${storeId}|${cid}|${cid}|OPEN|HOME_OFFICE|`);
-  outLines.push(`INSERT_ONLY|INV_DOC|RECEIVING|ASN|${storeId}|${cid}||OPEN||||${storeId}|${orgName}|HOME_OFFICE||${pd.dateIso}|||||||${storeId}||RETAIL_LOCATION|${storeId}||||||||||||||||||`);
-  let seq=1;
-  for(const item of pd.items) for(const [sz,qty] of item.sizes){
-    outLines.push(`INSERT_ONLY|INV_DOC_LINE_ITEM|RECEIVING||${cid}|${storeId}|${cid}|${seq}|OPEN|${item.style}.${sz}|${qty}|||||ON_HAND||HOME_OFFICE|ITEM|||${item.price}|||||`);
-    seq++;
-  }
-  const lc=outLines.length;
-  const now=new Date();
-  const ts=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0'),
-            String(now.getHours()).padStart(2,'0'),String(now.getMinutes()).padStart(2,'0'),String(now.getSeconds()).padStart(2,'0')].join('');
-  const filename=`${ts}_BTA_TH_${storeId}_ASN.mnt`;
-  const header=`<Header line_count="${lc}" download_id="${filename}" application_date="${pd.dateIso}" target_org_node="STORE:${storeId}" deployment_name="${filename}" download_time="IMMEDIATE" apply_immediately="True" />`;
-  return { content:header+'\r\n'+outLines.join('\r\n')+'\r\n', filename };
-}
-
 function formatBytes(b){ if(b<1024) return b+' B'; if(b<1048576) return (b/1024).toFixed(1)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
 function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso); return d.toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}); }
 
@@ -221,7 +221,7 @@ let hqAuthed = false;
 
 function setTopbar(mode,showLogout,showBack){
   const tbr=document.getElementById('topbar-right');
-  const badge=mode?`<span class="mode-badge">${mode==='hq'?'🏢 HQ Admin':'🏪 Store'}</span>`:'';
+  const badge=mode?`<span class="mode-badge">${mode==='hq'?'🏢 HQ Admin':mode==='repair'?'🔧 แจ้งซ่อม':'🏪 Store'}</span>`:'';
   const logout=showLogout?`<button class="btn-topbar" onclick="hqLogout()">Sign Out</button>`:'';
   const back=showBack?`<button class="btn-topbar" onclick="render('home')">← Back</button>`:'';
   tbr.innerHTML=badge+back+logout;
@@ -233,10 +233,11 @@ function render(page,params={}){
   else if(page==='hq-login'){ setTopbar('hq',false,true); app.innerHTML=pageHqLogin(); }
   else if(page==='hq-main'){ setTopbar('hq',true,true); pageHqMain(params); }
   else if(page==='store'){ setTopbar('store',false,true); pageStore(params); }
+  else if(page==='repair'){ setTopbar('repair',false,true); app.innerHTML=pageRepair(); }
 }
 
 // ═══════════════════════════════════════
-// HOME
+// HOME — 3 cards
 // ═══════════════════════════════════════
 function pageHome(){
   return `<div class="center-wrap"><div style="text-align:center;width:100%">
@@ -245,17 +246,57 @@ function pageHome(){
     <div style="font-size:14px;color:var(--gray-400);margin-bottom:40px">Bata Franchise</div>
     <div class="mode-grid" style="margin:0 auto">
       <button class="mode-card" onclick="render('hq-login')">
-        <div style="font-size:32px;margin-bottom:12px">🏢</div>
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">HQ Admin</div>
-        <div style="font-size:12px;color:var(--gray-400);line-height:1.5">Upload supply files &amp; publish invoices</div>
+        <div class="mode-card-icon">🏢</div>
+        <div class="mode-card-title">HQ Admin</div>
+        <div class="mode-card-desc">Upload supply files &amp; publish invoices</div>
       </button>
       <button class="mode-card" onclick="render('store',{storeId:'30016'})">
-        <div style="font-size:32px;margin-bottom:12px">🏪</div>
-        <div style="font-size:16px;font-weight:700;margin-bottom:6px">Store</div>
-        <div style="font-size:12px;color:var(--gray-400);line-height:1.5">Select invoices &amp; download</div>
+        <div class="mode-card-icon">🏪</div>
+        <div class="mode-card-title">Store</div>
+        <div class="mode-card-desc">Select invoices &amp; download</div>
+      </button>
+      <button class="mode-card" onclick="render('repair')">
+        <div class="mode-card-icon">🔧</div>
+        <div class="mode-card-title">แจ้งซ่อม</div>
+        <div class="mode-card-desc">แจ้งปัญหาและขอรับบริการซ่อมสาขา</div>
       </button>
     </div>
   </div></div>`;
+}
+
+// ═══════════════════════════════════════
+// REPAIR PAGE
+// ═══════════════════════════════════════
+function pageRepair(){
+  return `<div class="main">
+    <div class="section-header">
+      <div>
+        <div class="section-title">🔧 แบบฟอร์มแจ้งซ่อม</div>
+        <div class="section-sub">Repair Request · กรอกข้อมูลเพื่อแจ้งปัญหาสาขาของคุณ</div>
+      </div>
+    </div>
+    <div class="repair-wrap">
+      <div class="repair-header">
+        <span style="font-size:18px">🔧</span>
+        <div class="card-label">Repair Request Form</div>
+        <span class="repair-badge">Online</span>
+      </div>
+      <div class="repair-iframe-box">
+        <div class="iframe-loader" id="iframe-loader">
+          <div class="loader-ring"></div>
+          <span>กำลังโหลดแบบฟอร์ม...</span>
+        </div>
+        <iframe
+          src="https://script.google.com/macros/s/AKfycbysC0iN6ZITO4ocnjdL9QiYcbnK1FjsthGErgq7CdLefW5nVm-gaOExe3vwNGVwG6S9/exec"
+          onload="document.getElementById('iframe-loader').style.display='none'">
+        </iframe>
+      </div>
+      <div class="repair-footer">
+        ℹ️ ข้อมูลจะถูกบันทึกลง Google Sheets อัตโนมัติเมื่อกด Submit &nbsp;·&nbsp;
+        หากฟอร์มไม่โหลด <a href="https://script.google.com/macros/s/AKfycbysC0iN6ZITO4ocnjdL9QiYcbnK1FjsthGErgq7CdLefW5nVm-gaOExe3vwNGVwG6S9/exec" target="_blank" style="color:var(--red);font-weight:600">เปิดในแท็บใหม่</a>
+      </div>
+    </div>
+  </div>`;
 }
 
 // ═══════════════════════════════════════
@@ -410,7 +451,6 @@ async function hqPublish(){
 async function renderHqManage(){
   document.getElementById('hq-content').innerHTML=`<div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">Loading...</div></div>`;
   const rows=await sbSelect('invoices','order=date_iso.asc');
-  // Get download counts per PO
   const dlRows=await sbSelect('downloads','select=po');
   const dlCount={};
   for(const d of dlRows){ dlCount[d.po]=(dlCount[d.po]||0)+1; }
@@ -514,19 +554,13 @@ async function pageStore(params={}){
 async function renderStoreContent(storeId){
   const el=document.getElementById('store-content');
   const stype=getStoreType(storeId);
-
-  // Load invoices from Supabase
   storeInvoices=await sbSelect('invoices','order=date_iso.asc');
-
   if(!storeInvoices.length){
     el.innerHTML=`<div class="card"><div class="empty"><div class="empty-icon">📭</div><div class="empty-text">No invoices available yet</div><div style="font-size:12px;color:var(--gray-400);margin-top:8px">Please contact HQ to publish invoices</div></div></div>`;
     return;
   }
-
-  // Check which POs already downloaded by this store
   const dlRows=await sbSelect('downloads',`store_id=eq.${storeId}&select=po`);
   const downloadedPOs=new Set(dlRows.map(d=>d.po));
-
   el.innerHTML=`
   <div class="card">
     <div class="card-label">Available Invoices</div>
@@ -572,10 +606,8 @@ function filterInvoices(q){
 }
 
 function togglePO(po){
-  const inv=storeInvoices.find(r=>r.po===po);
-  if(!inv) return;
-  if(storeSelected.has(po)) storeSelected.delete(po);
-  else storeSelected.add(po);
+  const inv=storeInvoices.find(r=>r.po===po); if(!inv) return;
+  if(storeSelected.has(po)) storeSelected.delete(po); else storeSelected.add(po);
   const chk=document.getElementById('chk-'+po);
   const row=document.getElementById('row-'+po);
   if(chk) chk.checked=storeSelected.has(po);
@@ -630,11 +662,8 @@ async function storeDownload(){
   const stype=getStoreType(storeId);
   const btn=document.getElementById('dl-btn');
   if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Preparing...'; }
-
   const selectedArr=[...storeSelected].sort();
-
   if(stype==='foxpro'){
-    // Foxpro: export supply text ต้นฉบับ ทุก PO รวมกัน 1 ไฟล์
     let combined='';
     const now=new Date();
     const ts=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0'),
@@ -642,35 +671,27 @@ async function storeDownload(){
     const filename=`${ts}_BTA_TH_${storeId}_supply.txt`;
     let totalQty=0;
     for(const po of selectedArr){
-      const r=storeInvoices.find(x=>x.po===po);
-      if(!r) continue;
-      combined+=r.supply_text+'\n';
-      totalQty+=r.qty;
+      const r=storeInvoices.find(x=>x.po===po); if(!r) continue;
+      combined+=r.supply_text+'\n'; totalQty+=r.qty;
       await sbInsert('downloads',{po,store_id:storeId,store_type:'foxpro',qty:r.qty,filename});
     }
     triggerDownload(combined,filename);
-    // Mark as downloaded in UI
     for(const po of selectedArr){
-      const row=document.getElementById('row-'+po);
-      const chk=document.getElementById('chk-'+po);
+      const row=document.getElementById('row-'+po); const chk=document.getElementById('chk-'+po);
       if(row){ row.classList.add('disabled'); row.classList.remove('selected'); row.onclick=null; }
       if(chk){ chk.checked=false; chk.disabled=true; }
-      // Add badge
       const idEl=row?.querySelector('.po-row-id');
       if(idEl&&!idEl.querySelector('.badge')) idEl.innerHTML+=` <span class="badge badge-downloaded" style="font-size:10px;margin-left:6px">✓ Downloaded</span>`;
     }
-    storeSelected=new Set();
-    updateSelCount(); updateDlPanel();
+    storeSelected=new Set(); updateSelCount(); updateDlPanel();
     const panel=document.getElementById('dl-panel');
     if(panel) panel.innerHTML+=`<div class="alert alert-ok" style="margin-top:8px">✅ <strong>${filename}</strong> downloaded — copy file to <strong>C:\\pos\\</strong> then run Foxpro</div>`;
-
   } else {
-    // Xstore: สร้าง .mnt ไฟล์เดียว รวมทุก PO ที่เลือก
     const now=new Date();
     const ts=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0'),
               String(now.getHours()).padStart(2,'0'),String(now.getMinutes()).padStart(2,'0'),String(now.getSeconds()).padStart(2,'0')].join('');
     const filename=`${ts}_BTA_TH_${storeId}_ASN.mnt`;
-    const outLines=[], poSummary=[];
+    const outLines=[],poSummary=[];
     let totalQty=0;
     for(const po of selectedArr){
       const r=storeInvoices.find(x=>x.po===po); if(!r) continue;
@@ -678,30 +699,26 @@ async function storeDownload(){
       const cid=`${po}_${pd.ym}_${storeId}`;
       outLines.push(`INSERT_ONLY|CARTON|RECEIVING||${storeId}|${cid}|${cid}|OPEN|HOME_OFFICE|`);
       outLines.push(`INSERT_ONLY|INV_DOC|RECEIVING|ASN|${storeId}|${cid}||OPEN||||${storeId}|THAILAND HQ|HOME_OFFICE||${pd.dateIso}|||||||${storeId}||RETAIL_LOCATION|${storeId}||||||||||||||||||`);
-      let seq=1, poQty=0;
+      let seq=1,poQty=0;
       for(const item of pd.items) for(const [sz,qty] of item.sizes){
         outLines.push(`INSERT_ONLY|INV_DOC_LINE_ITEM|RECEIVING||${cid}|${storeId}|${cid}|${seq}|OPEN|${item.style}.${sz}|${qty}|||||ON_HAND||HOME_OFFICE|ITEM|||${item.price}|||||`);
         seq++; poQty+=qty;
       }
-      poSummary.push({po,qty:poQty});
-      totalQty+=poQty;
+      poSummary.push({po,qty:poQty}); totalQty+=poQty;
       await sbInsert('downloads',{po,store_id:storeId,store_type:'xstore',qty:poQty,filename});
     }
     const lc=outLines.length;
     const firstDate=storeInvoices.find(x=>x.po===selectedArr[0])?.date_iso||'';
     const header=`<Header line_count="${lc}" download_id="${filename}" application_date="${firstDate}" target_org_node="STORE:${storeId}" deployment_name="${filename}" download_time="IMMEDIATE" apply_immediately="True" />`;
-    triggerDownload(header+'\r\n'+outLines.join('\r\n')+'\r\n', filename);
-    // Mark UI
+    triggerDownload(header+'\r\n'+outLines.join('\r\n')+'\r\n',filename);
     for(const po of selectedArr){
-      const row=document.getElementById('row-'+po);
-      const chk=document.getElementById('chk-'+po);
+      const row=document.getElementById('row-'+po); const chk=document.getElementById('chk-'+po);
       if(row){ row.classList.add('disabled'); row.classList.remove('selected'); row.onclick=null; }
       if(chk){ chk.checked=false; chk.disabled=true; }
       const idEl=row?.querySelector('.po-row-id');
       if(idEl&&!idEl.querySelector('.badge')) idEl.innerHTML+=` <span class="badge badge-downloaded" style="font-size:10px;margin-left:6px">✓ Downloaded</span>`;
     }
-    storeSelected=new Set();
-    updateSelCount(); updateDlPanel();
+    storeSelected=new Set(); updateSelCount(); updateDlPanel();
     const panel=document.getElementById('dl-panel');
     if(panel) panel.innerHTML+=`<div class="alert alert-ok" style="margin-top:8px">✅ <strong>${filename}</strong> downloaded — run <strong>run_dataloader.bat</strong> on Desktop to import into Xstore</div>`;
   }
