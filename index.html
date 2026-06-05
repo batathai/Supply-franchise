@@ -137,19 +137,7 @@ async function sbInsert(table, data){
   return r.ok;
 }
 async function sbUpsert(table, data){
-  const r=await fetch(`${SB_URL}/rest/v1/${table}`,{
-    method:'POST',
-    headers:{
-      ...SB_HEADERS,
-      'Prefer':'resolution=merge-duplicates,return=representation',
-      'Content-Type':'application/json'
-    },
-    body:JSON.stringify(data)
-  });
-  if(!r.ok){
-    const err=await r.text();
-    console.error('Upsert error:',r.status,err);
-  }
+  const r=await fetch(`${SB_URL}/rest/v1/${table}?on_conflict=po`,{method:'POST',headers:{...SB_HEADERS,'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(data)});
   return r.ok;
 }
 async function sbDelete(table, query){
