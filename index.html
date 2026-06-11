@@ -162,7 +162,7 @@ function parseSupply(text){
     const c=line.trim().split(',');
     if(c.length<22) continue;
     const style=c[2]; if(style==='9999999') continue;
-    const totalQty=+c[3]; if(totalQty===0) continue;
+    const totalQty=+c[3]; if(totalQty===0 && c[19]!=='E') continue;
     const po=c[1],itemType=c[19],cost=parseFloat(c[21]),price=Math.round(cost*1.07);
     const qtyCols=c.slice(4,17).map(Number);
     const [d,m,y]=c[0].split('/');
