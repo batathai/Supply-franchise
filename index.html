@@ -170,18 +170,19 @@ function parseSupply(text){
     const grid=buildGrid(itemType);
     const sizes=[];
     if(itemType==='E'){
-      // type E: qty อยู่ใน c[3] และ c[4] ใช้ totalQty โดยตรง
+      // type E: qty อยู่ใน c[3] โดยตรง
       if(totalQty>0) sizes.push(['000',totalQty]);
     } else {
       Object.entries(grid).sort((a,b)=>+a[0]-+b[0]).forEach(([idx,sz])=>{ const q=qtyCols[+idx]??0; if(q>0) sizes.push([sz,q]); });
     }
     const pairQty=sizes.reduce((s,[,q])=>s+q,0);
-    if(pairQty===0) continue; // skip ถ้าไม่มี qty จริงๆ
     if(!pos.has(po)) pos.set(po,{dateIso,ym,items:[],qty:0,supplyLines:[]});
     const pd=pos.get(po);
+    // เก็บบรรทัดทุกบรรทัดไว้ (รวมที่ qty=0) เพื่อให้โครงสร้างไฟล์เหมือนต้นฉบับ FoxPro 100%
+    pd.supplyLines.push(line.trim());
+    if(pairQty===0) continue; // ไม่นับ items/qty ถ้าไม่มี qty จริงๆ แต่ยังเก็บ line ไว้
     pd.items.push({style,sizes,price});
     pd.qty+=pairQty;
-    pd.supplyLines.push(line.trim());
   }
   return pos;
 }
@@ -791,8 +792,8 @@ async function storeDownload(){
     for(const po of selectedArr){
       const r=storeInvoices.find(x=>x.po===po); if(!r) continue;
 
-      // ── แยก lines ของ PO นี้ ──
-      const lines = r.supply_text.trim().split('\n');
+      // ── แยก lines ของ PO นี้ (normalize line endings ก่อน) ──
+      const lines = r.supply_text.trim().split(/\r?\n/);
       const firstLine = lines[0].split(',');
       const dateStr = firstLine[0];
       const poNum = firstLine[1];
@@ -809,9 +810,9 @@ async function storeDownload(){
         poCost += cost * qty;
       }
 
-      // ── เพิ่มบรรทัด 9999999 summary ──
-      combined += r.supply_text.trim() + '\n';
-      combined += `${dateStr},${poNum},9999999,${poPairs},0,0,0,0,0,0,0,0,0,0,0,0,0,,,,68000,${poCost.toFixed(2)},0,0,59998\n`;
+      // ── เพิ่มบรรทัด 9999999 summary — ใช้ CRLF (\r\n) ให้ตรงกับไฟล์ต้นฉบับ FoxPro ──
+      combined += lines.join('\r\n') + '\r\n';
+      combined += `${dateStr},${poNum},9999999,${poPairs},0,0,0,0,0,0,0,0,0,0,0,0,0,,,,68000,${poCost.toFixed(2)},0,0,59998\r\n`;
 
       totalQty += r.qty;
       await sbInsert('downloads',{po,store_id:storeId,store_type:'foxpro',qty:r.qty,filename});
